@@ -47,8 +47,13 @@ func Set(table string, key string, value string) error {
 	// Set the key and write back as json.
 	js[key] = value
 	save, _ := json.MarshalIndent(js, "", "  ")
-	err = os.WriteFile(path, []byte(save), 0644)
-	return err
+	// First write to .tmp file then rename so operation is atomic.
+	tmp := fmt.Sprintf("%s.tmp", path)
+	err = os.WriteFile(tmp, []byte(save), 0644)
+	if err != nil {
+		return err
+	}
+	return os.Rename(tmp, path)
 }
 
 func Del(table string, key string) error {
@@ -72,7 +77,12 @@ func Del(table string, key string) error {
 		os.Remove(trimSlash(path))
 	} else {
 		save, _ := json.MarshalIndent(js, "", "  ")
-		err = os.WriteFile(path, []byte(save), 0644)
+		tmp := fmt.Sprintf("%s.tmp", path)
+		err = os.WriteFile(tmp, []byte(save), 0644)
+		if err != nil {
+			return err
+		}
+		err = os.Rename(tmp, path)
 	}
 	return err
 }
@@ -108,8 +118,12 @@ func Make(table string) error {
 			os.MkdirAll(trimSlash(path), os.ModePerm)
 		}
 		// Create an empty table.
-		data := []byte("{}")
-		err = os.WriteFile(path, data, 0644)
+		tmp := fmt.Sprintf("%s.tmp", path)
+		err = os.WriteFile(tmp, data, 0644)
+		if err != nil {
+			return err
+		}
+		err = os.Rename(tmp, path)
 		if err != nil {
 			return err
 		}
