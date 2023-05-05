@@ -118,6 +118,7 @@ func Make(table string) error {
 			os.MkdirAll(trimSlash(path), os.ModePerm)
 		}
 		// Create an empty table.
+		data := []byte("{}")
 		tmp := fmt.Sprintf("%s.tmp", path)
 		err = os.WriteFile(tmp, data, 0644)
 		if err != nil {
