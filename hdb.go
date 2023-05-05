@@ -32,7 +32,7 @@ func Get(table string, key string) (string, error) {
 
 func Set(table string, key string, value string) error {
 	// Just create the table if it doesn't already exist.
-	Make(table)
+	makeTable(table)
 	path := fmt.Sprintf("%s%s", HOBBIT_STORAGE, table)
 	// Read existing table if it exists.
 	data, err := os.ReadFile(path)
@@ -102,7 +102,7 @@ func Map(table string) map[string]interface{} {
 	return js
 }
 
-func Make(table string) error {
+func makeTable(table string) error {
 	if strings.Contains(table, "..") || len(table) > 256 {
 		return errors.New("Invalid table name")
 	}
